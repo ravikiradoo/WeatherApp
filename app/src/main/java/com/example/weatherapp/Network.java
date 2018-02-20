@@ -1,9 +1,12 @@
 package com.example.weatherapp;
 
 import android.net.Uri;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,12 +20,13 @@ import static java.lang.System.in;
 
 public class Network {
 
-    private static String url="api.openweathermap.org/data/2.5/weather";
+    private static String url="http://api.openweathermap.org/data/2.5/weather";
 
     private static String key="77151234dc6d802759350b27de1f33db";
 
-    public String BuildUrl(String lat,String lon)
+    public  static URL BuildUrl(String lat,String lon)
     {
+        URL Url=null;
         Uri uri = Uri.parse(url).buildUpon()
                 .appendQueryParameter("lat",lat)
                 .appendQueryParameter("lon",lon)
@@ -30,28 +34,28 @@ public class Network {
                 .appendQueryParameter("APPID",key).build();
 
         try {
-            URL url=new URL(uri.toString());
+             Url=new URL(uri.toString());
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        return url;
+       System.out.print(Url);
+        return Url;
     }
 
-    public String GetData(URL url)
+    public static String GetData(URL url)
     {
         String result="";
         try {
             HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-
-            Scanner scanner = new Scanner(in);
-
-            scanner.useDelimiter("\\A");
-
-            if(scanner.hasNext())
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String line="";
+            while ((line=bufferedReader.readLine())!=null)
             {
-                result=scanner.next();
+                result=result+line;
             }
+
 
         } catch (IOException e) {
             e.printStackTrace();
