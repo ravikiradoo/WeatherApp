@@ -42,6 +42,26 @@ public class Network {
        System.out.print(Url);
         return Url;
     }
+    public  static URL BuildUrlWithCity(String city)
+    {
+        URL Url=null;
+        Uri uri = Uri.parse(url).buildUpon()
+
+                .appendQueryParameter("q",city)
+                .appendQueryParameter("cnt","7")
+                .appendQueryParameter("APPID",key).build();
+
+        try {
+            Url=new URL(uri.toString());
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        System.out.print(Url);
+        return Url;
+    }
+
+
 
     public static String GetData(URL url)
     {
