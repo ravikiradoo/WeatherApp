@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ public class Forecast extends AppCompatActivity {
    private ProgressBar progressBar;
     TextView textView;
     ArrayList<Weather> arrayList;
+    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,9 @@ public class Forecast extends AppCompatActivity {
        URL url=Network.BuildUrl5DayForecast(city);
        textView=(TextView)findViewById(R.id.textView4);
         arrayList = new ArrayList<Weather>();
+
+        recyclerView=(RecyclerView)findViewById(R.id.rv);
+
         new ForecastAsyncTask().execute(url);
 
     }
@@ -95,20 +100,5 @@ public class Forecast extends AppCompatActivity {
         }
     }
 
-    class Weather
-    {
-        private String Temp;
-        private String Icon;
-        private String Time;
-        private String Desc;
 
-        public Weather(String temp,String icon,String time,String desc )
-
-        {
-            Temp=temp;
-            Icon=icon;
-            Time=time;
-            Desc=desc;
-        }
-    }
 }
