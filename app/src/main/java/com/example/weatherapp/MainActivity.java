@@ -12,14 +12,17 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +38,10 @@ public class MainActivity extends AppCompatActivity {
     static String lon = "";
     private LocationManager locationManager;
     private LocationListener locationListener;
+    private ProgressBar progressBar;
     private TextView textView;
     private Toolbar toolbar;
-
+    private String cityId;
 
 
     @Override
@@ -47,10 +51,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar=(Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Weather World");
+        progressBar=(ProgressBar)findViewById(R.id.progress);
 
-
-
-        textView=(TextView)findViewById(R.id.weather);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 lat=Double.toString(location.getLatitude());
                 lon=Double.toString(location.getLongitude());
 
-                textView.setText(lat+" "+lon);
+
             }
 
             @Override
@@ -157,6 +159,11 @@ public class MainActivity extends AppCompatActivity {
 
     class GetDataAsyncTask extends AsyncTask<URL, Void, String> {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -168,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if(s!=null)
-            {textView.setText(s);
+            {
                 try {
                     JSONObject jsonObject = new JSONObject(s);
                     JSONArray weatherArray=jsonObject.getJSONArray("weather");
@@ -176,7 +183,9 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject weather=(JSONObject)weatherArray.get(0);
                     String main=weather.getString("main");
                     String desc=weather.getString("description");
-                    LinearLayout linearLayout=(LinearLayout)findViewById(R.id.firstLayout);
+                    textView=(TextView)findViewById(R.id.desc);
+                    textView.setText(desc);
+                    ConstraintLayout linearLayout=(ConstraintLayout) findViewById(R.id.firstLayout);
                     if(main.equals("Clear"))
                     {
                         linearLayout.setBackground(getDrawable(R.drawable.i01));
@@ -212,35 +221,30 @@ public class MainActivity extends AppCompatActivity {
                     String temp=mainJson.getString("temp");
                     String pressure=mainJson.getString("pressure");
                     String humidity=mainJson.getString("humidity");
-                    Double tempmin=Double.parseDouble(mainJson.getString("temp_min"))-273;
-                    Double tempmax=Double.parseDouble(mainJson.getString("temp_max"))-273;
-                    TextView textView = (TextView)findViewById(R.id.temp);
+                    textView = (TextView)findViewById(R.id.humidity);
+                    textView.setText(humidity+"%");
 
+                    Double tempmax=Double.parseDouble(mainJson.getString("temp_max"))-273;
+                    textView = (TextView)findViewById(R.id.tempmax);
+                    textView.setText(String.format("%.1f", tempmax)+"\u2103" );
                     Double Ctemp=Double.parseDouble(temp);
                     Ctemp=Ctemp-273;
+                    textView = (TextView)findViewById(R.id.temp);
+                    textView.setText(String.format("%.1f", Ctemp)+"\u2103" );
 
-                    textView.setText(""+Ctemp+"Celsius");
-
-                    textView=(TextView)findViewById(R.id.mintemp);
-                    textView.setText(""+tempmin+"Celsius");
-
-                    textView=(TextView)findViewById(R.id.maxtemp);
-                    textView.setText(""+tempmax+"Celsius");
 
 
 
                     textView= (TextView)findViewById(R.id.pressure);
-                    textView.setText(pressure+"hPa");
-                    textView=(TextView)findViewById(R.id.humidity);
-                    textView.setText(humidity+"%");
-                    textView=(TextView)findViewById(R.id.desc);
-                    textView.setText("Weather status "+Capword(desc));
+                    textView.setText(pressure+" hPa");
+
 
 
                     JSONObject sysJson=jsonObject.getJSONObject("sys");
                     long sunrise=Long.parseLong(sysJson.getString("sunrise"));
                     long sunset=Long.parseLong(sysJson.getString("sunset"));
-                    String city=jsonObject.getString("name");
+                   String city=jsonObject.getString("name");
+                    cityId=jsonObject.getString("id");
                     String country=sysJson.getString("country");
                     textView=(TextView)findViewById(R.id.city);
                     textView.setText(Capword(city)+","+Capword(country));
@@ -248,18 +252,16 @@ public class MainActivity extends AppCompatActivity {
 
 
                     java.util.Date dateTime=new java.util.Date((sunrise*1000));
-                    textView =(TextView)findViewById(R.id.sunrrise);
-                    textView.setText(dateTime.toString());
+
 
                     dateTime=new java.util.Date((sunset*1000));
-                    textView=(TextView)findViewById(R.id.sunset);
-                    textView.setText(dateTime.toString());
 
                     JSONObject wind = jsonObject.getJSONObject("wind");
                     String windspeed=wind.getString("speed");
+                    textView=(TextView)findViewById(R.id.windspped);
+                    textView.setText(windspeed+"m/s");
+                    progressBar.setVisibility(View.GONE);
 
-                    textView=(TextView)findViewById(R.id.windspeed);
-                    textView.setText(windspeed);
 
 
                 } catch (JSONException e) {
@@ -274,6 +276,12 @@ public class MainActivity extends AppCompatActivity {
     {
         string=string.substring(0,1).toUpperCase()+string.substring(1);
         return string;
+    }
+    public void forecast(View view)
+    {
+        Intent intent = new Intent(this,Forecast.class);
+        intent.putExtra("city",cityId);
+        startActivity(intent);
     }
 
 

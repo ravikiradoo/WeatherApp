@@ -21,6 +21,8 @@ import static java.lang.System.in;
 public class Network {
 
     private static String url="http://api.openweathermap.org/data/2.5/weather";
+    private static String url_5_day="http://api.openweathermap.org/data/2.5/forecast";
+
 
     private static String key="77151234dc6d802759350b27de1f33db";
 
@@ -49,6 +51,25 @@ public class Network {
 
                 .appendQueryParameter("q",city)
                 .appendQueryParameter("cnt","7")
+                .appendQueryParameter("APPID",key).build();
+
+        try {
+            Url=new URL(uri.toString());
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        System.out.print(Url);
+        return Url;
+    }
+
+    public  static URL BuildUrl5DayForecast(String city)
+    {
+        URL Url=null;
+        Uri uri = Uri.parse(url_5_day).buildUpon()
+
+                .appendQueryParameter("id",city)
+
                 .appendQueryParameter("APPID",key).build();
 
         try {
