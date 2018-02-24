@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ public class Forecast extends AppCompatActivity {
     TextView textView;
     ArrayList<Weather> arrayList;
     RecyclerView recyclerView;
+    RAdapter rAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +38,16 @@ public class Forecast extends AppCompatActivity {
         arrayList = new ArrayList<Weather>();
 
         recyclerView=(RecyclerView)findViewById(R.id.rv);
+        recyclerView.hasFixedSize();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        rAdapter=new RAdapter(this);
+        recyclerView.setAdapter(rAdapter);
 
         new ForecastAsyncTask().execute(url);
+
+
+
+
 
     }
 
@@ -63,7 +74,9 @@ public class Forecast extends AppCompatActivity {
 
                     JSONObject Data = new JSONObject(s);
 
+
                     int N = Data.getInt("cnt");
+
                     for(int i=0;i<N;i++)
                     {
                         JSONArray list=Data.getJSONArray("list");
@@ -74,18 +87,24 @@ public class Forecast extends AppCompatActivity {
                         JSONObject jsonObject=(JSONObject) weather.get(0);
 
                         String desc=jsonObject.getString("description");
+                        String Main=jsonObject.getString("main");
 
-                        String temp=main.getString("temp");
+                        Double temp=main.getDouble("temp")-273;
+                        String Temp=String.format("%.1f",temp)+"\u2103";
+
 
                         String  icon=jsonObject.getString("icon");
 
-                        String time=data.getString("dt_text");
+                        String time=data.getString("dt_txt");
 
 
-                        Weather WEATHER=new Weather(temp,"e"+icon,time,desc);
+                        Weather WEATHER=new Weather(Temp,"e"+icon,time,desc,Main);
+
 
                         arrayList.add(WEATHER);
                     }
+
+                   rAdapter.setData(arrayList);
 
 
 

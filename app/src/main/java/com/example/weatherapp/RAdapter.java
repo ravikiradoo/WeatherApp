@@ -1,5 +1,8 @@
 package com.example.weatherapp;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
@@ -7,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -17,16 +21,20 @@ import java.util.ArrayList;
 public class RAdapter extends RecyclerView.Adapter<RAdapter.RviewHolder> {
 
     public ArrayList<Weather> arrayList;
-
-    public RAdapter(ArrayList<Weather> list)
+Context context;
+    public RAdapter(Context context)
+    {this.context=context;
+    }
+    public void setData(ArrayList<Weather> list)
     {
-        arrayList=list;
+        this.arrayList=list;
+        notifyDataSetChanged();
     }
 
     @Override
     public RviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view=inflater.inflate(R.layout.item,parent,true);
+        View view=inflater.inflate(R.layout.item,parent,false);
         return new RviewHolder(view);
 
 
@@ -42,12 +50,21 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.RviewHolder> {
         holder.textView4.setText(weather.Desc);
         holder.textView5.setText("Day/Date");
         holder.textView6.setText(weather.Time);
-      
+
+        int id = context.getResources().getIdentifier(weather.Icon, "drawable", context.getPackageName());
+
+        holder.imageView.setImageResource(id);
+
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        if(arrayList==null)
+            return 0;
+        else
+        {
+            return arrayList.size();
+        }
     }
 
     public class RviewHolder extends RecyclerView.ViewHolder {
